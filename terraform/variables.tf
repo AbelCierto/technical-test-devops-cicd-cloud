@@ -77,10 +77,10 @@ variable "desired_count" {
   default     = 0
 }
 
-variable "container_image" {
-  description = "Initial container image. Later GitHub Actions can update this."
+variable "app_version" {
+  description = "Semantic image tag used by ECS service"
   type        = string
-  default     = "public.ecr.aws/docker/library/node:18-alpine"
+  default     = "v.1.0.0"
 }
 
 variable "github_repo" {
