@@ -102,13 +102,7 @@ http://todo-app-alb-2036684797.us-east-1.elb.amazonaws.com/
 
 ### 2.1 Diagrama y Análisis del Flujo de Tráfico
 
-```
-┌──────────┐     ┌─────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│ Usuario  │────▶│  ALB (puerto 80) │────▶│  ECS Fargate     │────▶│  SQLite en EFS   │
-│ Browser  │     │  Security Group:  │     │  Security Group:  │     │  /etc/todos/     │
-│          │     │  0.0.0.0/0 → 80  │     │  ALB SG → 3000   │     │  todo.db         │
-└──────────┘     └─────────────────┘     └──────────────────┘     └──────────────────┘
-```
+![Diagrama](evidence/webapp-architecture.png)
 
 **Punto de Entrada:**
 - El usuario accede vía HTTP al DNS público del ALB.
