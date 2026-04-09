@@ -1,0 +1,5 @@
+aws_region            = "us-east-1"
+project_name          = "todo-app"
+github_repo           = "your-user/technical-test-devops-cicd-cloud"
+aws_access_key_id     = "AKIA..."
+aws_secret_access_key = "YOUR_SECRET_KEY"

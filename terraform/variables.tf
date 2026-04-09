@@ -4,6 +4,19 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_access_key_id" {
+  description = "AWS IAM user access key ID"
+  type        = string
+  default     = null
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS IAM user secret access key"
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "project_name" {
   description = "Project name prefix"
   type        = string
@@ -61,7 +74,7 @@ variable "memory" {
 variable "desired_count" {
   description = "Desired task count"
   type        = number
-  default     = 1
+  default     = 0
 }
 
 variable "container_image" {
@@ -73,5 +86,5 @@ variable "container_image" {
 variable "github_repo" {
   description = "GitHub repository in the format owner/repo for OIDC trust"
   type        = string
-  default     = "your-user/technical-test-devops-cicd-cloud"
+  default     = "AbelCierto/technical-test-devops-cicd-cloud"
 }

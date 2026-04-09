@@ -402,7 +402,7 @@ resource "aws_ecs_service" "app" {
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  thumbprint_list = [] # AWS resolves GitHub's TLS thumbprint automatically since 2023
 
   tags = {
     Name = "${var.project_name}-github-oidc"
