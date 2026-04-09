@@ -32,3 +32,8 @@ output "efs_id" {
   description = "EFS file system ID"
   value       = aws_efs_file_system.app.id
 }
+
+output "github_actions_role_arn" {
+  description = "IAM Role ARN for GitHub Actions (set as AWS_ROLE_ARN secret)"
+  value       = aws_iam_role.github_actions.arn
+}

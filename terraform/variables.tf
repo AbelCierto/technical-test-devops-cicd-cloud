@@ -4,6 +4,19 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_access_key_id" {
+  description = "AWS IAM user access key ID"
+  type        = string
+  default     = null
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS IAM user secret access key"
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "project_name" {
   description = "Project name prefix"
   type        = string
@@ -31,7 +44,7 @@ variable "public_subnet_2_cidr" {
 variable "availability_zone_1" {
   description = "AZ 1"
   type        = string
-  default     = "us-east-1a"s
+  default     = "us-east-1a"
 }
 
 variable "availability_zone_2" {
@@ -61,11 +74,17 @@ variable "memory" {
 variable "desired_count" {
   description = "Desired task count"
   type        = number
-  default     = 1
+  default     = 0
 }
 
-variable "container_image" {
-  description = "Initial container image. Later GitHub Actions can update this."
+variable "app_version" {
+  description = "Semantic image tag used by ECS service"
   type        = string
-  default     = "public.ecr.aws/docker/library/node:20-alpine"
+  default     = "v.1.0.0"
+}
+
+variable "github_repo" {
+  description = "GitHub repository in the format owner/repo for OIDC trust"
+  type        = string
+  default     = "AbelCierto/technical-test-devops-cicd-cloud"
 }
