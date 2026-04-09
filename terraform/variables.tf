@@ -31,7 +31,7 @@ variable "public_subnet_2_cidr" {
 variable "availability_zone_1" {
   description = "AZ 1"
   type        = string
-  default     = "us-east-1a"s
+  default     = "us-east-1a"
 }
 
 variable "availability_zone_2" {
@@ -67,5 +67,11 @@ variable "desired_count" {
 variable "container_image" {
   description = "Initial container image. Later GitHub Actions can update this."
   type        = string
-  default     = "public.ecr.aws/docker/library/node:20-alpine"
+  default     = "public.ecr.aws/docker/library/node:18-alpine"
+}
+
+variable "github_repo" {
+  description = "GitHub repository in the format owner/repo for OIDC trust"
+  type        = string
+  default     = "your-user/technical-test-devops-cicd-cloud"
 }

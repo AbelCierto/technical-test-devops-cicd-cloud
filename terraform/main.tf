@@ -1,9 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_ecs_task_execution_role" "dummy" {
-  count = 0
-}
-
 # --------------------------------------------------
 # NETWORKING
 # --------------------------------------------------
@@ -196,6 +192,11 @@ resource "aws_iam_role" "ecs_execution_role" {
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   role       = aws_iam_role.ecs_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_ecr_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_iam_role" "ecs_task_role" {
@@ -392,4 +393,98 @@ resource "aws_ecs_service" "app" {
   tags = {
     Name = "${var.project_name}-service"
   }
+}
+
+# --------------------------------------------------
+# GITHUB ACTIONS OIDC – allows the pipeline to assume an IAM role
+# --------------------------------------------------
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+
+  tags = {
+    Name = "${var.project_name}-github-oidc"
+  }
+}
+
+resource "aws_iam_role" "github_actions" {
+  name = "${var.project_name}-github-actions-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.project_name}-github-actions-role"
+  }
+}
+
+resource "aws_iam_role_policy" "github_actions_policy" {
+  name = "${var.project_name}-github-actions-policy"
+  role = aws_iam_role.github_actions.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:CompleteLayerUpload",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage",
+          "ecr:UploadLayerPart"
+        ]
+        Resource = aws_ecr_repository.app.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeServices",
+          "ecs:UpdateService",
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = [
+          aws_iam_role.ecs_execution_role.arn,
+          aws_iam_role.ecs_task_role.arn
+        ]
+      }
+    ]
+  })
 }
