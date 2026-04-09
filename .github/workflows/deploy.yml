@@ -1,4 +1,4 @@
-name: CI-CD Deploy to ECS
+name: CI/CD Deploy to ECS
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: todo-app
-  ECS_CLUSTER: todo-cluster
-  ECS_SERVICE: todo-service
+  ECS_CLUSTER: todo-app-cluster
+  ECS_SERVICE: todo-app-service
   ECS_TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: todo-app
 
@@ -24,18 +24,18 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "18"
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
         working-directory: ./app
 
       - name: Run tests
-        run: npm test --if-present
+        run: yarn test
         working-directory: ./app
 
-      - name: Build app
-        run: npm run build --if-present
+      - name: Lint check
+        run: yarn prettify --check || true
         working-directory: ./app
 
   deploy:

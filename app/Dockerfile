@@ -1,12 +1,14 @@
-FROM node:20-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn install --production
 
-COPY . .
+COPY ./src ./src
+
+RUN mkdir -p /etc/todos
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "src/index.js"]
