@@ -74,7 +74,7 @@ variable "memory" {
 variable "desired_count" {
   description = "Desired task count"
   type        = number
-  default     = 0
+  default     = 1
 }
 
 variable "app_version" {
