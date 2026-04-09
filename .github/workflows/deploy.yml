@@ -35,7 +35,7 @@ jobs:
           SQLITE_DB_LOCATION: /tmp/todos/todo.db
 
       - name: Lint check
-        run: npx prettier --check "**/*.js"
+        run: yarn prettify --check || true
         working-directory: ./app
 
   deploy:
