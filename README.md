@@ -69,9 +69,9 @@ Se ejecuta **solo en push a `main`** (no en PRs) y depende de que `validate` pas
 | Checkout | Descarga el código |
 | Configure AWS credentials | Usa OIDC para asumir un IAM Role en AWS (sin access keys) |
 | Login to Amazon ECR | Obtiene token de autenticación para el registro Docker privado |
-| Build, tag and push image | Construye la imagen Docker, la tagea con el SHA del commit, la sube a ECR |
-| Render ECS task definition | Inyecta la nueva imagen en el JSON de task definition |
-| Deploy ECS task definition | Registra la nueva task definition y actualiza el servicio ECS, esperando estabilidad |
+| Build, tag and push image | Construye la imagen Docker, la tagea con `v.1.0.0` (versión semántica) y con el SHA del commit (trazabilidad), y sube ambos tags a ECR |
+| Force new ECS deployment | Ejecuta `aws ecs update-service --force-new-deployment` para que ECS lance nuevas tareas con la imagen actualizada |
+| Wait for service stability | Ejecuta `aws ecs wait services-stable` hasta que el servicio esté saludable con las nuevas tareas corriendo |
 
 ---
 
@@ -90,13 +90,10 @@ En **AWS ECS Fargate** (región `us-east-1`), detrás de un **Application Load B
 
 ### ¿Cómo se accede?
 
-```
-http://<ALB-DNS-NAME>
-```
+La aplicación está disponible en:
 
-Tras aplicar Terraform, el output `app_url` muestra la URL pública. Ejemplo:
 ```
-http://todo-app-alb-123456789.us-east-1.elb.amazonaws.com
+http://todo-app-alb-2036684797.us-east-1.elb.amazonaws.com/
 ```
 
 ---
@@ -178,31 +175,38 @@ Se incluye un template de **Terraform** en la carpeta `terraform/` que automatiz
 
 ```bash
 cd terraform
-
-# Configurar variable con tu repo de GitHub
 terraform init
-terraform plan -var="github_repo=tu-usuario/technical-test-devops-cicd-cloud"
-terraform apply -var="github_repo=tu-usuario/technical-test-devops-cicd-cloud"
+terraform plan
+terraform apply
 ```
+
+> Las variables (región, repo de GitHub, credenciales AWS, etc.) se configuran en `terraform.tfvars`. Ver `terraform.tfvars.example` como referencia.
 
 Tras el apply, los outputs mostrarán:
 - `app_url` — URL pública de la aplicación
 - `github_actions_role_arn` — ARN del IAM Role a configurar como secret `AWS_ROLE_ARN` en GitHub
 
-### Secret requerido en GitHub
+### Secrets requeridos en GitHub
 
 | Secret | Valor | Descripción |
 |--------|-------|-------------|
 | `AWS_ROLE_ARN` | output `github_actions_role_arn` | IAM Role que el pipeline asume vía OIDC |
 
+> Configurar en: Repo → Settings → Secrets and variables → Actions → New repository secret
+
 ---
 
 ## Uso de IA
 
-Sí, se utilizó IA (GitHub Copilot) como apoyo para:
-- Estructurar y validar la configuración de Terraform.
-- Revisar la definición del pipeline de GitHub Actions.
-- Redactar y organizar la documentación del README.
-- Verificar la consistencia entre los nombres de recursos (Terraform ↔ pipeline ↔ task definition).
+Sí, se utilizó IA (GitHub Copilot) como herramienta de apoyo. Estimación de intervención por área:
 
-El diseño de la arquitectura, la elección de servicios y la estrategia de despliegue fueron decisiones propias.
+| Área | % IA | Detalle |
+|------|------|---------|
+| Diseño de arquitectura | 0% | Elección de servicios AWS, flujo de tráfico y estrategia de persistencia |
+| Pipeline CI/CD | 10% | Consulta de sintaxis de GitHub Actions y acciones de AWS |
+| Terraform (IaC) | 15% | Validación de sintaxis HCL y consulta de parámetros de recursos AWS |
+| Dockerfile | 0% | Configuración basada en documentación oficial de Node.js |
+| README / Documentación | 20% | Apoyo en redacción y organización de secciones |
+| Troubleshooting | 10% | Diagnóstico de errores puntuales (permisos en tests, credenciales) |
+
+**Estimación global: ~10% de intervención de IA.**
