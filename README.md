@@ -102,13 +102,7 @@ http://todo-app-alb-2036684797.us-east-1.elb.amazonaws.com/
 
 ### 2.1 Diagrama y Análisis del Flujo de Tráfico
 
-```
-┌──────────┐     ┌─────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│ Usuario  │────▶│  ALB (puerto 80) │────▶│  ECS Fargate     │────▶│  SQLite en EFS   │
-│ Browser  │     │  Security Group:  │     │  Security Group:  │     │  /etc/todos/     │
-│          │     │  0.0.0.0/0 → 80  │     │  ALB SG → 3000   │     │  todo.db         │
-└──────────┘     └─────────────────┘     └──────────────────┘     └──────────────────┘
-```
+![Diagrama](evidence/webapp-architecture.png)
 
 **Punto de Entrada:**
 - El usuario accede vía HTTP al DNS público del ALB.
@@ -210,3 +204,47 @@ Sí, se utilizó IA (GitHub Copilot) como herramienta de apoyo. Estimación de i
 | Troubleshooting | 10% | Diagnóstico de errores puntuales (permisos en tests, credenciales) |
 
 **Estimación global: ~10% de intervención de IA.**
+
+---
+
+## Evidencias
+
+### Pipeline CI/CD – GitHub Actions
+Ejecución exitosa del pipeline con los jobs `validate` y `deploy` completados:
+
+![CI/CD GitHub Actions](evidence/ci-cd-github-actions.png)
+
+### Aplicación desplegada
+La aplicación Todo List funcionando en el navegador a través del ALB:
+
+![App desplegada](evidence/alb-deployed.png)
+
+### Application Load Balancer (ALB)
+ALB activo, internet-facing, con listener HTTP:80 redirigiendo al target group:
+
+![ALB](evidence/alb.png)
+
+### Target Group
+Target group `todo-app-tg` con target healthy en puerto 3000:
+
+![Target Group](evidence/tg-group.png)
+
+### ECS Fargate Service
+Servicio `todo-app-service` activo con 1 task running (Fargate):
+
+![ECS Service](evidence/service-serverless.png)
+
+### ECR – Registro de imágenes Docker
+Repositorio `todo-app` con imágenes tagueadas por commit SHA y versión semántica:
+
+![ECR](evidence/ecr.png)
+
+### EFS – Almacenamiento persistente
+Filesystem `todo-app-efs` cifrado, montado en los contenedores para persistir SQLite:
+
+![EFS](evidence/efs.png)
+
+### Security Groups
+Tres security groups creados (ALB, ECS, EFS) con reglas de tráfico segmentadas:
+
+![Security Groups](evidence/sg.png)
