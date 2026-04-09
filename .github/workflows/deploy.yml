@@ -11,7 +11,6 @@ env:
   ECR_REPOSITORY: todo-app
   ECS_CLUSTER: todo-app-cluster
   ECS_SERVICE: todo-app-service
-  CONTAINER_NAME: todo-app
 
 jobs:
   validate:
