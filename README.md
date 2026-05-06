@@ -1,4 +1,4 @@
-# Prueba Técnica DevOps – CI/CD + Cloud
+# DevOps – CI/CD + Cloud
 
 ---
 
